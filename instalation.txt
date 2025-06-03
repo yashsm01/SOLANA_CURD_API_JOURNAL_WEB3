@@ -1,0 +1,16 @@
+//install webpp
+npx create-solana-dapp curd_api_2
+
+//open folder
+cd curd_api_2
+
+//create soladity code setup
+anchor init counter
+
+// set up new git repo
+git config --global user.name "yashsm01"
+git config --global user.email "yash.150410109034@gmail.com"
+
+//run initial build
+cd counter
+anchor build
