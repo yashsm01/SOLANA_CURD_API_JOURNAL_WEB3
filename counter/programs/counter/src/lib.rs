@@ -1,21 +1,3 @@
-//install webpp
-npx create-solana-dapp curd_api_2
-
-//open folder
-cd curd_api_2
-
-//create soladity code setup
-anchor init counter
-
-// set up new git repo
-git config --global user.name "yashsm01"
-git config --global user.email "yash.150410109034@gmail.com"
-
-//run initial build
-cd counter
-anchor build
-
-
 use anchor_lang::prelude::*;
 
 declare_id!("5MzvwUQpkdML29mNh1uLsaRjJkUmp2frttnV1z9zuAou");
@@ -32,13 +14,19 @@ pub mod counter {
         Ok(())
     }
 
-    pub fn update_journal_entry(ctx: Context<UpdateEntry>, title: String, message: String) -> Result<()> {
+    pub fn update_journal_entry(ctx: Context<UpdateEntry>, _title: String, message: String) -> Result<()> {
         let journal_entry = &mut ctx.accounts.journal_entry;
         // Optionally uncomment for access control:
         // if journal_entry.owner != ctx.accounts.owner.key() {
         //     return Err(ErrorCode::Unauthorized.into());
         // }
         journal_entry.message = message;
+        Ok(())
+    }
+
+    pub fn delete_journal_entry(ctx: Context<DeleteEntry>) -> Result<()> {
+        let journal_entry = &mut ctx.accounts.journal_entry;
+        journal_entry.message = "".to_string();
         Ok(())
     }
 }
@@ -62,7 +50,7 @@ pub struct CreateEntry<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(title: String, message: String)]
+#[instruction(title: String)]
 pub struct UpdateEntry<'info> {
     #[account(
         mut,
@@ -71,6 +59,23 @@ pub struct UpdateEntry<'info> {
         realloc = 8 + JournalEntryState::INIT_SPACE,
         realloc::payer = owner,
         realloc::zero = true
+    )]
+    pub journal_entry: Account<'info, JournalEntryState>,
+
+    #[account(mut)]
+    pub owner: Signer<'info>,
+
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+#[instruction(title: String)]
+pub struct DeleteEntry<'info>{
+    #[account(
+        mut,
+        seeds = [title.as_bytes(), owner.key().as_ref()],
+        bump,
+        close = owner
     )]
     pub journal_entry: Account<'info, JournalEntryState>,
 
@@ -91,4 +96,3 @@ pub struct JournalEntryState {
     #[max_len(280)]
     pub message: String,
 }
-
