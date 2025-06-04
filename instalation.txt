@@ -15,6 +15,15 @@ git config --global user.email "yash.150410109034@gmail.com"
 cd counter
 anchor build
 
+//to remove counter git
+rm -rf counter/.git
+
+//cmd in solana
+solana-test-validator
+anchor build
+---Deploy in local------
+anchor deploy --provider.cluster localnet
+anchor keys sync
 
 use anchor_lang::prelude::*;
 
